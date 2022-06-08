@@ -88,8 +88,7 @@ class Polygon : Shape
 
     public void SetSize(int pts)
     {
-        numpoints = (pts-1)/4;
-        
+        numpoints = (pts-2)/4;
     }
     public float area()
     {
@@ -136,18 +135,25 @@ class Polygon : Shape
         //Every even except 0 is X, every odd except 1 is Y;
         xcoord = new float[numpoints];
         ycoord = new float[numpoints];
-        for (int i = 0; i < numpoints; i++)
+        for (int i = 3; i+4 < values.Length; i+=4)
         {
-            if (i % 2 == 0 && i != 0)
-            {
-                // xcoord[i] = float value = float.Parse(mystring, CultureInfo.InvariantCulture.NumberFormat);
-                xcoord[i] = (float)(Convert.ToDouble(values[i]));
-            }
-            else if (i % 2 == 1 && i != 1)
-            {
-                ycoord[i] = (float)(Convert.ToDouble(values[i]));
-            }
+            xcoord[(i+1)/4-1] = (float)(Convert.ToDouble(values[i]));
+            // if (i % 2 == 0 && i != 0)
+            // {
+            //     // xcoord[i] = float value = float.Parse(mystring, CultureInfo.InvariantCulture.NumberFormat);
+            //     
+            // }
+            // else if (i % 2 == 1 && i != 1)
+            // {
+            //     ycoord[i] = (float)(Convert.ToDouble(values[i]));
+            // }
         }
+
+        for (int i = 5; i + 4 < values.Length; i += 4)
+        {
+            ycoord[(i-1)/4-1] = (float)(Convert.ToDouble(values[i]));
+        }
+        
     }
 }
 
@@ -183,11 +189,12 @@ class Uniform : Shape   // For Squares and Equilaterals
         }
     }
 
-    public void setUp(float x, float y, float length)
+    public void setUp(float x, float y, float length, int opt)
     {
         centerX = x;
         centerY = y;
         sideLength = length;
+        option = opt;
     }
 }
 
@@ -199,42 +206,76 @@ class Program
         using(var reader = new StreamReader(@"ShapeList2.csv"))
         {
             List<string> geoprop = new List<string>();
+
+            string path = "output.csv";
             
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-                var values = line.Split(',');
-
-                Console.WriteLine(values[0]);
-                geoprop.Add(values[0]); // add ShapeID to list to add to new CSV
-
-                string shape = values[1];
-                switch (shape)
+            if (File.Exists(path))  
+            {  
+                File.Delete(path);  
+            } 
+            using (FileStream file = File.Create(path)){}
+            
+            using (var fs = new StreamWriter(path))
+            { 
+                while (!reader.EndOfStream)
                 {
-                    case "Circle":
-                        Circle circle = new Circle();
-                        circle.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
-                            (float)Convert.ToDouble(values[7]));
-                        Console.WriteLine(circle.area());
-                        break;
-                    case "Ellipse":
-                        Ellipse ellipse = new Ellipse();
-                        break;
-                    case "Polygon":
-                        Polygon polygon = new Polygon();
-                        break;
-                    case "Square":
-                        Uniform square = new Uniform();
-                        break;
-                    case "Equilateral":
-                        Uniform equilateral = new Uniform();
-                        break;
-                    //equilateral.
-                    default:
-                        break;
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+
+                    Console.WriteLine(values[0]);
+                    geoprop.Add(values[0]); // add ShapeID to list to add to new CSV
+    
+                    string shape = values[1];
+                    float a = 0f;
+                    float p = 0f;
+                    switch (shape)
+                    {
+                        case "Circle":
+                            Circle circle = new Circle();
+                            circle.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
+                                (float)Convert.ToDouble(values[7]));
+                            Console.WriteLine(circle.area());
+                            a = circle.area();
+                            Console.WriteLine(circle.permimeter());
+                            p = circle.permimeter();
+                            break;
+                        case "Ellipse":
+                            Ellipse ellipse = new Ellipse();
+                            ellipse.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
+                                (float)Convert.ToDouble(values[7]), (float)Convert.ToDouble(values[9]));;
+                            a = ellipse.area();
+                            p = ellipse.permimeter();
+                            break;
+                        case "Polygon":
+                            Polygon polygon = new Polygon();
+                            polygon.SetSize(values.Length);
+                            polygon.BuildXYCoord(values);
+                            a = polygon.area();
+                            p = polygon.permimeter();
+                            break;
+                        case "Square":
+                            Uniform square = new Uniform();
+                            square.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
+                                (float)Convert.ToDouble(values[7]), 0);
+                            a = square.area();
+                            p = square.permimeter();
+                            break;
+                        case "Equilateral Triangle":
+                            Uniform equilateral = new Uniform();
+                            equilateral.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
+                                (float)Convert.ToDouble(values[7]), 1);
+                            a = equilateral.area();
+                            p = equilateral.permimeter();
+                            break;
+                        //equilateral.
+                        default:
+                            break;
+                    }
+                    var shapeline = string.Format("{0},{1},{2},{3}", values[0], values[1], a.ToString(), p.ToString());
+                    fs.WriteLine(shapeline);
+                    fs.Flush();
                 }
 
-                break;
             }
         }
     }
