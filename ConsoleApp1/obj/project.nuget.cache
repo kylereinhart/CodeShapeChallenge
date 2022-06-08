@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "HYRkgjXCY+8WLtjpTpqM5ITK3oJXV6GYxjWUzrUOA5hcObBVG915gqZbpRwfzhblIeUWZc+MhMgHM+w1Ylwkzw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Rhino\\RiderProjects\\TestExecutable\\ConsoleApp1\\ConsoleApp1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Rhino\\.nuget\\packages\\mathnet.numerics\\5.0.0\\mathnet.numerics.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
