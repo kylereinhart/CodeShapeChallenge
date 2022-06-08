@@ -250,7 +250,7 @@ class Program
                             Polygon polygon = new Polygon();
                             polygon.SetSize(values.Length);
                             polygon.BuildXYCoord(values);
-                            a = polygon.area();
+                            a = polygon.area()/2;
                             p = polygon.permimeter();
                             break;
                         case "Square":
@@ -271,6 +271,7 @@ class Program
                         default:
                             break;
                     }
+
                     var shapeline = string.Format("{0},{1},{2},{3}", values[0], values[1], a.ToString(), p.ToString());
                     fs.WriteLine(shapeline);
                     fs.Flush();
