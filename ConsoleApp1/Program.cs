@@ -10,8 +10,6 @@ interface Shape
 
 class Circle : Shape
 {
-    private float centerX;
-    private float centerY;
     private float radius;
 
     public float area()
@@ -24,21 +22,16 @@ class Circle : Shape
         return (float)(2.0f * Math.PI * radius);
     }
     
-    public void setUp(float x, float y, float r)
+    public void setUp(float r)
     {
-        centerX = x;
-        centerY = y;
         radius = r;
     }
 }
 
 class Ellipse : Shape
 {
-    private float centerX;
-    private float centerY;
     private float r1;
     private float r2;
-    private float orientation;
     public float area()
     {
         return (float)(Math.PI * r1 * r2);
@@ -50,10 +43,8 @@ class Ellipse : Shape
         return (float)(Math.PI * (3 * (r1 + r2) - Math.Sqrt(((3 * r1) + r2) * (r1 + (3 * r2)))));
     }
     
-    public void setUp(float x, float y, float rad1, float rad2)
+    public void setUp(float rad1, float rad2)
     {
-        centerX = x;
-        centerY = y;
         r1 = rad1;
         r2 = rad2;
     }
@@ -140,31 +131,18 @@ class Polygon : Shape
         for (int i = 3; i+4 < values.Length; i+=4)
         {
             xcoord[(i+1)/4-1] = (float)(Convert.ToDouble(values[i]));
-            // if (i % 2 == 0 && i != 0)
-            // {
-            //     // xcoord[i] = float value = float.Parse(mystring, CultureInfo.InvariantCulture.NumberFormat);
-            //     
-            // }
-            // else if (i % 2 == 1 && i != 1)
-            // {
-            //     ycoord[i] = (float)(Convert.ToDouble(values[i]));
-            // }
         }
 
         for (int i = 5; i + 4 < values.Length; i += 4)
         {
             ycoord[(i-1)/4-1] = (float)(Convert.ToDouble(values[i]));
         }
-        
     }
 }
 
 class Uniform : Shape   // For Squares and Equilaterals
 {
-    private float centerX;
-    private float centerY;
     private float sideLength;
-    private float orientation;
     public int option;
 
     public float area()
@@ -191,10 +169,8 @@ class Uniform : Shape   // For Squares and Equilaterals
         }
     }
 
-    public void setUp(float x, float y, float length, int opt)
+    public void setUp(float length, int opt)
     {
-        centerX = x;
-        centerY = y;
         sideLength = length;
         option = opt;
     }
@@ -217,34 +193,34 @@ class Program
             
             using (var fs = new StreamWriter(path))
             {
-                var headers = string.Format("{0},{1},{2},{3},{4},{5}", 
-                    "ShapeID", "Shape", "Area", "Perimeter", "Centroid X", "Centroid Y");
+                var headers = string.Format("{0},{1},{2},{3},{4},{5},{6}", 
+                    "ShapeID", "Shape", "Area", "Perimeter", "Centroid X", "Centroid Y", "Orientation");
                 fs.WriteLine(headers);
                 fs.Flush();
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    var values = line.Split(',');
+                    var values = line!.Split(',');
                     
                     string shape = values[1];
-                    float a = 0f;
-                    float p = 0f;
+                    float a = 0.0f;
+                    float p = 0.0f;
                     float xcent = (float)(Convert.ToDouble(values[3]));
                     float ycent = (float)(Convert.ToDouble(values[5]));
+                    float orient = 0f;
                     
                     switch (shape)
                     {
                         case "Circle":
                             Circle circle = new Circle();
-                            circle.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
-                                (float)Convert.ToDouble(values[7]));
+                            circle.setUp((float)Convert.ToDouble(values[7]));
                             a = circle.area();
                             p = circle.permimeter();
                             break;
                         case "Ellipse":
                             Ellipse ellipse = new Ellipse();
-                            ellipse.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
-                                (float)Convert.ToDouble(values[7]), (float)Convert.ToDouble(values[9]));;
+                            ellipse.setUp((float)Convert.ToDouble(values[7]), (float)Convert.ToDouble(values[9]));
+                            orient = (float)Convert.ToDouble(values[9]);
                             a = ellipse.area();
                             p = ellipse.permimeter();
                             break;
@@ -260,22 +236,22 @@ class Program
                             break;
                         case "Square":
                             Uniform square = new Uniform();
-                            square.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
-                                (float)Convert.ToDouble(values[7]), 0);
+                            square.setUp((float)Convert.ToDouble(values[7]), 0);
+                            orient = (float)Convert.ToDouble(values[9]);
                             a = square.area();
                             p = square.permimeter();
                             break;
                         case "Equilateral Triangle":
                             Uniform equilateral = new Uniform();
-                            equilateral.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
-                                (float)Convert.ToDouble(values[7]), 1);
+                            equilateral.setUp((float)Convert.ToDouble(values[7]), 1);
+                            orient = (float)Convert.ToDouble(values[9]);
                             a = equilateral.area();
                             p = equilateral.permimeter();
                             break;
                     }
 
-                    var shapeline = string.Format("{0},{1},{2},{3},{4},{5}", 
-                        values[0], values[1], a.ToString(), p.ToString(), xcent.ToString(), ycent.ToString());
+                    var shapeline = string.Format("{0},{1},{2},{3},{4},{5},{6}", 
+                        values[0], values[1], a.ToString(), p.ToString(), xcent.ToString(), ycent.ToString(), orient.ToString());
                     fs.WriteLine(shapeline);
                     fs.Flush();
                 }
