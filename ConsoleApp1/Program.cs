@@ -1,21 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
-// using test;
 using System.IO;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
-using Microsoft.VisualBasic.FileIO;
-
-class counter
-{
-    public int number = 0;
-
-    public void increment(int n)
-    {
-        number += n;
-        Console.WriteLine("Number equals: " + number);
-    }
-}
 
 interface Shape
 {
@@ -29,19 +14,14 @@ class Circle : Shape
     private float centerY;
     private float radius;
 
-    private float a;
-    private float p;
-
     public float area()
     {
-        a = (float)(Math.PI * Math.Pow(radius, 2));
-        return a;
+        return (float)(Math.PI * Math.Pow(radius, 2));
     }
 
     public float permimeter()
     {
-        p = (float)(2.0f * Math.PI * radius);
-        return p;
+        return (float)(2.0f * Math.PI * radius);
     }
     
     public void setUp(float x, float y, float r)
@@ -130,6 +110,28 @@ class Polygon : Shape
         return perry;
     }
 
+    public float[] centroid()
+    {
+        float xcent = 0f;
+        for (int i = 0; i < numpoints; i++)
+        {
+            xcent += xcoord[i];
+        }
+        xcent /= numpoints;
+        
+        float ycent = 0f;
+        for (int i = 0; i < numpoints; i++)
+        {
+            ycent += ycoord[i];
+        }
+        ycent /= numpoints;
+        float[] centroid = new float[2];
+        centroid[0] = xcent;
+        centroid[1] = ycent;
+
+        return centroid;
+    }
+
     public void BuildXYCoord(string[] values)
     {
         //Every even except 0 is X, every odd except 1 is Y;
@@ -205,8 +207,6 @@ class Program
         // using(var reader = new StreamReader(@"C:\Users\Rhino\RiderProjects\TestExecutable\ConsoleApp1\ShapeList2.csv"))
         using(var reader = new StreamReader(@"ShapeList2.csv"))
         {
-            List<string> geoprop = new List<string>();
-
             string path = "output.csv";
             
             if (File.Exists(path))  
@@ -216,27 +216,29 @@ class Program
             using (FileStream file = File.Create(path)){}
             
             using (var fs = new StreamWriter(path))
-            { 
+            {
+                var headers = string.Format("{0},{1},{2},{3},{4},{5}", 
+                    "ShapeID", "Shape", "Area", "Perimeter", "Centroid X", "Centroid Y");
+                fs.WriteLine(headers);
+                fs.Flush();
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
                     var values = line.Split(',');
-
-                    Console.WriteLine(values[0]);
-                    geoprop.Add(values[0]); // add ShapeID to list to add to new CSV
-    
+                    
                     string shape = values[1];
                     float a = 0f;
                     float p = 0f;
+                    float xcent = (float)(Convert.ToDouble(values[3]));
+                    float ycent = (float)(Convert.ToDouble(values[5]));
+                    
                     switch (shape)
                     {
                         case "Circle":
                             Circle circle = new Circle();
                             circle.setUp((float)Convert.ToDouble(values[3]), (float)Convert.ToDouble(values[5]), 
                                 (float)Convert.ToDouble(values[7]));
-                            Console.WriteLine(circle.area());
                             a = circle.area();
-                            Console.WriteLine(circle.permimeter());
                             p = circle.permimeter();
                             break;
                         case "Ellipse":
@@ -252,6 +254,9 @@ class Program
                             polygon.BuildXYCoord(values);
                             a = polygon.area()/2;
                             p = polygon.permimeter();
+                            float[] polycent = polygon.centroid();
+                            xcent = polycent[0];
+                            ycent = polycent[1];
                             break;
                         case "Square":
                             Uniform square = new Uniform();
@@ -267,12 +272,10 @@ class Program
                             a = equilateral.area();
                             p = equilateral.permimeter();
                             break;
-                        //equilateral.
-                        default:
-                            break;
                     }
 
-                    var shapeline = string.Format("{0},{1},{2},{3}", values[0], values[1], a.ToString(), p.ToString());
+                    var shapeline = string.Format("{0},{1},{2},{3},{4},{5}", 
+                        values[0], values[1], a.ToString(), p.ToString(), xcent.ToString(), ycent.ToString());
                     fs.WriteLine(shapeline);
                     fs.Flush();
                 }
