@@ -1,5 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-using System;
+﻿using System;
 using System.IO;
 
 interface Shape
@@ -124,9 +123,12 @@ class Polygon : Shape
         return centroid;
     }
 
+    /*
+     * Function to build the point arrays of the polygon
+     * param: values: the csv line extracted to array
+     */
     public void BuildXYCoord(string[] values)
     {
-        //Every even except 0 is X, every odd except 1 is Y;
         xcoord = new float[numpoints];
         ycoord = new float[numpoints];
         for (int i = 3; i+4 <= values.Length+1; i+=4)
