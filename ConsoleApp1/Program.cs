@@ -69,7 +69,8 @@ class Polygon : Shape
             if (i + 1 == numpoints)
             {
                 // We have reached the last point and need to connect it to the beginning
-                a += xcoord[i] * ycoord[0] - ycoord[i] * xcoord[0];
+                // a += xcoord[i] * ycoord[0] - ycoord[i] * xcoord[0];
+                break;
             }
             else
             {
@@ -128,12 +129,12 @@ class Polygon : Shape
         //Every even except 0 is X, every odd except 1 is Y;
         xcoord = new float[numpoints];
         ycoord = new float[numpoints];
-        for (int i = 3; i+4 < values.Length; i+=4)
+        for (int i = 3; i+4 <= values.Length+1; i+=4)
         {
             xcoord[(i+1)/4-1] = (float)(Convert.ToDouble(values[i]));
         }
 
-        for (int i = 5; i + 4 < values.Length; i += 4)
+        for (int i = 5; i + 4 <= values.Length+4; i += 4)
         {
             ycoord[(i-1)/4-1] = (float)(Convert.ToDouble(values[i]));
         }
